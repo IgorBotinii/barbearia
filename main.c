@@ -16,7 +16,7 @@ void listarBarbeiros() {
     }
 
     char linha[100];
-    printf("Barbeiros Disponíveis:\n");
+    printf("Barbeiros Disponiveis:\n");
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
         char loginArquivo[50], nomeBarbeiro[50];
         sscanf(linha, "LOGIN: %s\tSENHA: %*s\tNOME BARBEIRO: %s", loginArquivo, nomeBarbeiro);
@@ -49,7 +49,7 @@ void agendarCorte(const char *cpf) {
     fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\n", cpf, nomeBarbeiro);
     fclose(agendamentoArquivo);
 
-    printf("Agendamento realizado com sucesso com o barbeiro %s!\n", nomeBarbeiro);
+    printf("O seu agendamento com o barbeiro %s foi realizado com sucesso!\n", nomeBarbeiro);
 }
 
 // Função para verificar se o CPF contém apenas números (desconsiderando pontuação)
