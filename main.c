@@ -27,32 +27,114 @@ void listarBarbeiros() {
     fclose(arquivo);
 }
 
-void agendarCorte(const char *cpf) {
-    listarBarbeiros();
-
-    char nomeBarbeiro[50];
-    printf("Digite o nome do barbeiro que deseja agendar (ou 0 para cancelar): ");
-    fgets(nomeBarbeiro, sizeof(nomeBarbeiro), stdin);
-    nomeBarbeiro[strcspn(nomeBarbeiro, "\n")] = '\0';
-
-    if (strcmp(nomeBarbeiro, "0") == 0) {
-        printf("Agendamento cancelado.\n");
-        return;
+int verificarBarbeiro(const char *nomeBarbeiro) {
+    FILE *arquivo = fopen("barbeiros.txt", "r");
+    if (arquivo == NULL) {
+        return 0;
     }
 
-    FILE *agendamentoArquivo = fopen("agendamentos.txt", "a");
-    if (agendamentoArquivo == NULL) {
-        printf("Erro ao abrir o arquivo de agendamentos!\n");
-        return;
+    char linha[100], nomeArquivo[50];
+
+    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+        sscanf(linha, "LOGIN: %*s\tSENHA: %*s\tNOME BARBEIRO: %s", nomeArquivo);
+        if (strcmp(nomeBarbeiro, nomeArquivo) == 0) {
+            fclose(arquivo);
+            return 1;
+        }
     }
 
-    fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\n", cpf, nomeBarbeiro);
-    fclose(agendamentoArquivo);
-
-    printf("O seu agendamento com o barbeiro %s foi realizado com sucesso!\n", nomeBarbeiro);
+    fclose(arquivo);
+    return 0;
 }
 
-// Função para verificar se o CPF contém apenas números (desconsiderando pontuação)
+void horariosdisponiveis(char horarios[][10], int *numHorarios) {
+    strcpy(horarios[0], "15:00");
+    strcpy(horarios[1], "16:00");
+    strcpy(horarios[2], "17:00");
+    strcpy(horarios[3], "18:00");
+    strcpy(horarios[4], "19:00");
+    strcpy(horarios[5], "20:00");
+    *numHorarios = 6; // Define o numeros de Horarios disponiveis
+}
+    void agendarCorte(const char *cpf) {
+        listarBarbeiros();
+
+        // Criar uma matriz para armazenar os horarios
+        char horarios[6][10];
+        int numHorarios = 0;
+        horariosdisponiveis(horarios, &numHorarios);
+
+        printf("horarios disponiveis:\n");
+        for (int i = 0; i < numHorarios; i++) {
+            printf("%d. %s\n", i + 1, horarios[i]);
+        }
+
+        char nomeBarbeiro[50];
+        printf("Digite o nome do barbeiro que deseja agendar (ou 0 para cancelar): ");
+        fgets(nomeBarbeiro, sizeof(nomeBarbeiro), stdin);
+        nomeBarbeiro[strcspn(nomeBarbeiro, "\n")] = '\0';
+
+        if (strcmp(nomeBarbeiro, "0") == 0) {
+            printf("Agendamento cancelado.\n");
+            return;
+        }
+
+        // Verificar se o barbeiro existe
+        if (!verificarBarbeiro(nomeBarbeiro)) {
+            printf("O barbeiro %s nao existe.\n", nomeBarbeiro);
+            return;
+        }
+
+        // Adicionar a seleção de horario
+        int indiceHorario;
+        printf("Selecione o horario (1 a 6): ");
+        scanf("%d", &indiceHorario);
+        getchar(); // Limpar o buffer do stdin
+
+        if (indiceHorario < 1 || indiceHorario > numHorarios) {
+            printf("horario invalido.\n");
+            return;
+        }
+    FILE *agendamentoArquivo = fopen("agendamentos.txt", "a+");
+    if (agendamentoArquivo == NULL) {
+        printf("Erro ao abrir o arquivo de agendamentos! Criando o arquivo...\n");
+        agendamentoArquivo = fopen("agendamentos.txt", "w");
+        if (agendamentoArquivo == NULL) {
+            printf("Erro ao criar o arquivo de agendamentos!\n");
+            return;
+        }
+    }
+
+    char linha[100];
+    int horarioOcupado = 0;
+    char horarioSelecionado[10];
+    strcpy(horarioSelecionado, horarios[indiceHorario - 1]);
+
+    while (fgets(linha, sizeof(linha), agendamentoArquivo) != NULL) {
+        if (strstr(linha, horarioSelecionado) != NULL && strstr(linha, nomeBarbeiro) != NULL) {
+            horarioOcupado = 1;
+            break;
+        }
+    }
+
+    // Se o horario estiver ocupado, feche o arquivo e retorne
+    if (horarioOcupado) {
+        fclose(agendamentoArquivo);
+        printf("O horario das %s com o barbeiro %s ja foi preenchido\n", horarioSelecionado, nomeBarbeiro);
+        return;
+    }
+
+    // Aqui você pode escrever no arquivo porque ele está aberto
+    fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\thorario: %s\n", cpf, nomeBarbeiro, horarioSelecionado);
+    fclose(agendamentoArquivo);
+
+    printf("O seu agendamento com o barbeiro %s para o horario %s foi realizado com sucesso!\n", nomeBarbeiro, horarioSelecionado);
+}
+
+
+
+
+// Função para verificar se o CPF contém apenas numeross (desconsiderando pontuação)
 int VarVerificarCPFnumero(const char *cpf) {
     for (int i = 0; i < strlen(cpf); i++) {
         if (!isdigit(cpf[i]) && cpf[i] != '.' && cpf[i] != '-') {
@@ -72,7 +154,7 @@ int VarVerificarLoginLetra(const char *login) {
     return 1;
 }
 
-// Função para verificar se o CPF já está cadastrado
+// Função para verificar se o CPF ja está cadastrado
 int verificarCPF(const char *cpf) {
     FILE *arquivo = fopen("clientes.txt", "r");
 
@@ -94,7 +176,7 @@ int verificarCPF(const char *cpf) {
     return 0;
 }
 
-// Função para verificar se o login já está cadastrado
+// Função para verificar se o login ja está cadastrado
 int verificarLogin(const char *login) {
     FILE *arquivo = fopen("barbeiros.txt", "r");
     if (arquivo == NULL) {
