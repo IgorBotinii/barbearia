@@ -267,6 +267,9 @@ int main() {
                         if (sair) {
                             break;
                         }
+                    } else {
+                      printf("Login ou senha inexistente ou incorreto.\n");
+                      continue;
                     }
                 }
             } else if (opcao == 2){
@@ -296,6 +299,9 @@ int main() {
                         if (sair) {
                             break;
                         }
+                    } else {
+                      printf("CPF ou senha inexistente ou incorreto.\n");
+                      continue;
                     }
                 }
             }
