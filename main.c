@@ -313,9 +313,74 @@ void CadastrarBarbeiro(const char *login, const char *senha, const char *nomeBar
     fclose(arquivo);
 }
 
+// Função para consultar saldo
+void consultarSaldo() {
+    char login_logado[50];
+    char senha_logada[50];
+    char login_arquivo[50], senha_arquivo[50];
+    char nome_barbeiro[50];
+    float saldo;
+    int i, login_encontrado = 0;
+
+    FILE *arquivo = fopen("barbeiros.txt", "r");
+
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo de barbeiros!\n");
+        return;
+    }
+
+    // Entrada do login
+    printf("Digite o seu login de barbeiro: ");
+    scanf("%s", login_logado);
+
+    // Verifica se o login contém apenas letras
+    for (i = 0; login_logado[i] != '\0'; i++) {
+        if (!isalpha(login_logado[i])) {
+            printf("Login de barbeiro inválido. Digite apenas letras.\n");
+            fclose(arquivo);
+            return; 
+        }
+    }
+
+    // Entrada da senha
+    printf("Digite a sua senha: ");
+    scanf("%s", senha_logada);
+
+    // Leitura do arquivo e busca pelo login e senha
+    while (fscanf(arquivo, "LOGIN: %s SENHA: %s NOME BARBEIRO: %s SALDO ATUAL: %f\n", 
+                  login_arquivo, senha_arquivo, nome_barbeiro, &saldo) != EOF) {
+        if (strcmp(login_logado, login_arquivo) == 0 && strcmp(senha_logada, senha_arquivo) == 0) {
+            printf("Login e senha corretos!\n");
+            printf("Nome do barbeiro: %s\n", nome_barbeiro);
+            printf("Seu saldo atual é: R$%.2f\n", saldo);
+            login_encontrado = 1;
+            break;
+        }
+    }
+
+    if (!login_encontrado) {
+        printf("Login ou senha incorretos!\n");
+    }
+
+    fclose(arquivo);
+}
+
+// Função pra usar no menu
+int validarNumero(char *entrada) {
+    for (int i = 0; i < strlen(entrada); i++) {
+        if (!isdigit(entrada[i])) {
+            return 0; // Se encontrar qualquer caractere não numérico, retorna 0
+        }
+    }
+    return 1; // Se todos os caracteres forem números, retorna 1
+}
+
 // Menu do barbeiro
 void menuBarbeiro() {
     int opcao;
+    int sair = 0;
+    char entrada[10]; // Armazena a entrada do usuário como string
+
     do {
         printf("\nMenu Principal do barbeiro:\n");
         printf("1. Consultar agendamentos\n");
@@ -323,33 +388,40 @@ void menuBarbeiro() {
         printf("3. Consultar saldo\n");
         printf("4. Sair\n");
 
-        char input[10];
-        fgets(input, sizeof(input), stdin);
-        sscanf(input, "%d", &opcao);
+        printf("Escolha uma opcao: ");
+        scanf("%s", entrada); // Lê a entrada como string
+
+        // Verifica se a entrada contém apenas números
+        if (validarNumero(entrada)) {
+            opcao = atoi(entrada); // Converte a string para número inteiro
+        } else {
+            printf("Opcao invalida, insira uma opcao valida!\n");
+            continue;  // Retorna ao início do loop se a entrada não for válida
+        }
 
         switch (opcao) {
             case 1:
-                consultarAgendamentos();
+                consultarAgendamentos(); // Função para consultar agendamentos
                 break;
 
             case 2:
-                // Lógica para cancelar agendamentos
+                // Função
                 break;
 
             case 3:
-                // Lógica para consultar saldo
+                consultarSaldo(); // Função para consultar saldo
                 break;
 
             case 4:
                 printf("Sistema Finalizado\n");
-                sair = 1; // Define sair como 1 para encerrar o sistema
+                exit(0); // Encerra o programa
                 break;
 
             default:
                 printf("Opcao invalida!\n");
                 break;
         }
-    } while (opcao != 4);
+    } while (!sair);
 }
 
 // Menu do cliente
