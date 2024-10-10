@@ -8,6 +8,7 @@ int sair = 0;
 char cpf_logado[20];
 char login_logado[50];
 
+// Função para listar os barbeiros disponiveis
 void listarBarbeiros() {
     FILE *arquivo = fopen("barbeiros.txt", "r");
     if (arquivo == NULL) {
@@ -27,6 +28,7 @@ void listarBarbeiros() {
     fclose(arquivo);
 }
 
+// Função para verificar se o barbeiro existe
 int verificarBarbeiro(const char *nomeBarbeiro) {
     FILE *arquivo = fopen("barbeiros.txt", "r");
     if (arquivo == NULL) {
@@ -180,7 +182,7 @@ void consultarAgendamentos() {
     fclose(arquivo);
 }
 
-// Função para verificar se o CPF contém apenas numeross (desconsiderando pontuação)
+// Função para verificar se o CPF contém apenas numeros (desconsiderando pontuação)
 int VarVerificarCPFnumero(const char *cpf) {
     for (int i = 0; i < strlen(cpf); i++) {
         if (!isdigit(cpf[i]) && cpf[i] != '.' && cpf[i] != '-') {
@@ -313,9 +315,63 @@ void CadastrarBarbeiro(const char *login, const char *senha, const char *nomeBar
     fclose(arquivo);
 }
 
+// Função para consultar saldo
+void consultarSaldo() {
+    char login_logado[50];
+    char senha_logada[50];
+    char login_arquivo[50], senha_arquivo[50];
+    char nome_barbeiro[50];
+    float saldo;
+    int i, login_encontrado = 0;
+
+    FILE *arquivo = fopen("barbeiros.txt", "r");
+
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo de barbeiros!\n");
+        return;
+    }
+
+    // Entrada do login
+    printf("Digite o seu login de barbeiro: ");
+    scanf("%s", login_logado);
+
+    // Verifica se o login contém apenas letras
+    for (i = 0; login_logado[i] != '\0'; i++) {
+        if (!isalpha(login_logado[i])) {
+            printf("Login de barbeiro inválido. Digite apenas letras.\n");
+            fclose(arquivo);
+            return; 
+        }
+    }
+
+    // Entrada da senha
+    printf("Digite a sua senha: ");
+    scanf("%s", senha_logada);
+
+    // Leitura do arquivo e busca pelo login e senha
+    while (fscanf(arquivo, "LOGIN: %s SENHA: %s NOME BARBEIRO: %s SALDO ATUAL: %f\n", 
+                  login_arquivo, senha_arquivo, nome_barbeiro, &saldo) != EOF) {
+        if (strcmp(login_logado, login_arquivo) == 0 && strcmp(senha_logada, senha_arquivo) == 0) {
+            printf("Login e senha corretos!\n");
+            printf("Nome do barbeiro: %s\n", nome_barbeiro);
+            printf("Seu saldo atual é: R$%.2f\n", saldo);
+            login_encontrado = 1;
+            break;
+        }
+    }
+
+    if (!login_encontrado) {
+        printf("Login ou senha incorretos!\n");
+    }
+
+    fclose(arquivo);
+}
+
 // Menu do barbeiro
 void menuBarbeiro() {
     int opcao;
+    int sair = 0;
+
     do {
         printf("\nMenu Principal do barbeiro:\n");
         printf("1. Consultar agendamentos\n");
@@ -323,38 +379,46 @@ void menuBarbeiro() {
         printf("3. Consultar saldo\n");
         printf("4. Sair\n");
 
-        char input[10];
-        fgets(input, sizeof(input), stdin);
-        sscanf(input, "%d", &opcao);
+        printf("Escolha uma opcao: ");
+
+        // Verifica se a entrada é um número inteiro válido
+        if (scanf("%d", &opcao) != 1) {
+            // Se não for, exibe mensagem de erro e limpa a entrada
+            printf("Opcao invalida, insira uma opcao valido!\n");
+            while (getchar() != '\n');  // Limpa o buffer de entrada
+            continue;  // Retorna ao início do loop
+        }
 
         switch (opcao) {
             case 1:
-                consultarAgendamentos();
+                consultarAgendamentos(); // Função para consultar agendamentos
                 break;
 
             case 2:
-                // Lógica para cancelar agendamentos
+                // Função para cancelar agendamentos
                 break;
 
             case 3:
-                // Lógica para consultar saldo
+                consultarSaldo(); // Função para consultar saldo
                 break;
 
             case 4:
                 printf("Sistema Finalizado\n");
-                sair = 1; // Define sair como 1 para encerrar o sistema
+                exit(0); // Define sair como 1 para encerrar o sistema
                 break;
 
             default:
                 printf("Opcao invalida!\n");
                 break;
         }
-    } while (opcao != 4);
+    } while (!sair);
 }
 
 // Menu do cliente
 void menuCliente() {
     int opcao;
+    int sair = 0;
+
     do {
         printf("\nMenu Principal do cliente:\n");
         printf("1. Realizar agendamento\n");
@@ -362,9 +426,15 @@ void menuCliente() {
         printf("3. Consultar historico de agendamentos\n");
         printf("4. Sair\n");
 
-        char input[10];
-        fgets(input, sizeof(input), stdin);
-        sscanf(input, "%d", &opcao);
+        printf("Escolha uma opcao: ");
+
+        // Verifica se a entrada é um número inteiro válido
+        if (scanf("%d", &opcao) != 1) {
+            // Se não for, exibe mensagem de erro e limpa a entrada
+            printf("Opcao invalida, insira uma opcao valido!\n");
+            while (getchar() != '\n');  // Limpa o buffer de entrada
+            continue;  // Retorna ao início do loop
+        }
 
         switch (opcao) {
             case 1:
@@ -372,7 +442,7 @@ void menuCliente() {
                 break;
 
             case 2:
-                // Lógica para cancelar agendamento
+                // Função para cancelar agendamentos
                 break;
 
             case 3:
@@ -381,14 +451,14 @@ void menuCliente() {
 
             case 4:
                 printf("Sistema Finalizado\n");
-                sair = 1; // Define sair como 1 para encerrar o sistema
+                exit(0); // Define sair como 1 para encerrar o sistema
                 break;
 
             default:
                 printf("Opcao invalida!\n");
                 break;
         }
-    } while (opcao != 4);
+    } while (!sair);
 }
 
 // Função principal
@@ -400,12 +470,11 @@ int main() {
 
     while (!sair) {
         printf("Seja bem-vindo a barbearia FEIto na Navalha!\n");
-        printf("Selecione uma opcao:\n ");
-        printf("0- SAIR\t1- LOGAR\t2- CADASTRAR\n ");
+        printf("\t 0- SAIR\t 1- LOGAR\t 2- CADASTRAR\n");
 
-        char input[10];
-        fgets(input, sizeof(input), stdin);
-        sscanf(input, "%d", &opcao);
+        printf("Selecione uma opcao: ");
+        scanf("%d", &opcao);
+        getchar();
 
         if (opcao == 0) {
             printf("Saindo do sistema.\n");
@@ -413,11 +482,10 @@ int main() {
             break;
         } else if (opcao == 1) {
             // Login
-            printf("Selecione uma opcao:\n");
             printf("1- LOGAR COMO BARBEIRO\t2- LOGAR COMO CLIENTE\n");
-
-            fgets(input, sizeof(input), stdin);
-            sscanf(input, "%d", &opcao);
+            printf("Selecione uma opcao: ");
+            scanf("%d", &opcao);
+            getchar();
 
             if (opcao == 1) {
                 while (1) {
@@ -486,11 +554,9 @@ int main() {
             }
         } else if (opcao == 2) {
             // Cadastrar
-            printf("Selecione uma opcao:\n");
             printf("1- CADASTRAR BARBEIRO\t2- CADASTRAR CLIENTE\n");
-
-            fgets(input, sizeof(input), stdin);
-            sscanf(input, "%d", &opcao);
+            printf("Selecione uma opcao:\n");
+            scanf("%d", &opcao);
 
             if (opcao == 1) {
                 while (1) {
