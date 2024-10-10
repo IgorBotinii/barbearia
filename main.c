@@ -131,8 +131,54 @@ void horariosdisponiveis(char horarios[][10], int *numHorarios) {
     printf("O seu agendamento com o barbeiro %s para o horario %s foi realizado com sucesso!\n", nomeBarbeiro, horarioSelecionado);
 }
 
+// Função para consultar agendamentos
+void consultarAgendamentos() {
+    char nome_barbeiro[50];
+    char linha[256];
+    int agendamentos_encontrados = 0;
+    int i;
 
+    // Solicita o login do barbeiro
+    printf("Digite o nome do barbeiro: ");
+    scanf("%s", nome_barbeiro);
 
+    // Verifica se o nome contém apenas letras
+    for (i = 0; nome_barbeiro[i] != '\0'; i++) {
+        if (!isalpha(nome_barbeiro[i])) {
+            printf("Nome do barbeiro invalido. Digite apenas letras.\n");
+            return; 
+        }
+    }
+
+    // Abre o arquivo agendamentos.txt em modo leitura
+    FILE *arquivo = fopen("agendamentos.txt", "r");
+
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo de agendamentos.\n");
+        return;
+    }
+
+    // Lê linha por linha do arquivo
+    while (fgets(linha, sizeof(linha), arquivo)) {
+        // Verifica se o login do barbeiro está na linha
+        if (strstr(linha, nome_barbeiro) != NULL) {
+            // Se encontrar o primeiro agendamento, exibe a mensagem "Seus agendamentos:" uma vez
+            if (agendamentos_encontrados == 0) {
+                printf("Seus agendamentos:\n");
+            }
+            printf("%s", linha);  // Exibe a linha que contém o login
+            agendamentos_encontrados = 1;
+        }
+    }
+
+    // Verifica se nenhum agendamento foi encontrado
+    if (!agendamentos_encontrados) {
+        printf("Nenhum agendamento encontrado para o barbeiro '%s'.\n", nome_barbeiro);
+    }
+
+    // Fecha o arquivo
+    fclose(arquivo);
+}
 
 // Função para verificar se o CPF contém apenas numeross (desconsiderando pontuação)
 int VarVerificarCPFnumero(const char *cpf) {
@@ -283,7 +329,7 @@ void menuBarbeiro() {
 
         switch (opcao) {
             case 1:
-                // Lógica para consultar agendamentos
+                consultarAgendamentos();
                 break;
 
             case 2:
