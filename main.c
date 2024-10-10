@@ -8,7 +8,6 @@ int sair = 0;
 char cpf_logado[20];
 char login_logado[50];
 
-// Função para listar os barbeiros disponiveis
 void listarBarbeiros() {
     FILE *arquivo = fopen("barbeiros.txt", "r");
     if (arquivo == NULL) {
@@ -28,7 +27,6 @@ void listarBarbeiros() {
     fclose(arquivo);
 }
 
-// Função para verificar se o barbeiro existe
 int verificarBarbeiro(const char *nomeBarbeiro) {
     FILE *arquivo = fopen("barbeiros.txt", "r");
     if (arquivo == NULL) {
@@ -182,7 +180,7 @@ void consultarAgendamentos() {
     fclose(arquivo);
 }
 
-// Função para verificar se o CPF contém apenas numeros (desconsiderando pontuação)
+// Função para verificar se o CPF contém apenas numeross (desconsiderando pontuação)
 int VarVerificarCPFnumero(const char *cpf) {
     for (int i = 0; i < strlen(cpf); i++) {
         if (!isdigit(cpf[i]) && cpf[i] != '.' && cpf[i] != '-') {
@@ -367,10 +365,21 @@ void consultarSaldo() {
     fclose(arquivo);
 }
 
+// Função pra usar no menu
+int validarNumero(char *entrada) {
+    for (int i = 0; i < strlen(entrada); i++) {
+        if (!isdigit(entrada[i])) {
+            return 0; // Se encontrar qualquer caractere não numérico, retorna 0
+        }
+    }
+    return 1; // Se todos os caracteres forem números, retorna 1
+}
+
 // Menu do barbeiro
 void menuBarbeiro() {
     int opcao;
     int sair = 0;
+    char entrada[10]; // Armazena a entrada do usuário como string
 
     do {
         printf("\nMenu Principal do barbeiro:\n");
@@ -380,13 +389,14 @@ void menuBarbeiro() {
         printf("4. Sair\n");
 
         printf("Escolha uma opcao: ");
+        scanf("%s", entrada); // Lê a entrada como string
 
-        // Verifica se a entrada é um número inteiro válido
-        if (scanf("%d", &opcao) != 1) {
-            // Se não for, exibe mensagem de erro e limpa a entrada
-            printf("Opcao invalida, insira uma opcao valido!\n");
-            while (getchar() != '\n');  // Limpa o buffer de entrada
-            continue;  // Retorna ao início do loop
+        // Verifica se a entrada contém apenas números
+        if (validarNumero(entrada)) {
+            opcao = atoi(entrada); // Converte a string para número inteiro
+        } else {
+            printf("Opcao invalida, insira uma opcao valida!\n");
+            continue;  // Retorna ao início do loop se a entrada não for válida
         }
 
         switch (opcao) {
@@ -395,7 +405,7 @@ void menuBarbeiro() {
                 break;
 
             case 2:
-                // Função para cancelar agendamentos
+                // Função
                 break;
 
             case 3:
@@ -404,7 +414,7 @@ void menuBarbeiro() {
 
             case 4:
                 printf("Sistema Finalizado\n");
-                exit(0); // Define sair como 1 para encerrar o sistema
+                exit(0); // Encerra o programa
                 break;
 
             default:
@@ -414,11 +424,19 @@ void menuBarbeiro() {
     } while (!sair);
 }
 
+int validarNumeroCliente(char *entrada) {
+    // Verifica se a entrada contém apenas dígitos
+    for (int i = 0; i < strlen(entrada); i++) {
+        if (!isdigit(entrada[i])) {
+            return 0;  // Retorna 0 se algum caractere não for numérico
+        }
+    }
+    return 1;  // Retorna 1 se a entrada for válida (apenas números)
+}
+
 // Menu do cliente
 void menuCliente() {
     int opcao;
-    int sair = 0;
-
     do {
         printf("\nMenu Principal do cliente:\n");
         printf("1. Realizar agendamento\n");
@@ -426,15 +444,9 @@ void menuCliente() {
         printf("3. Consultar historico de agendamentos\n");
         printf("4. Sair\n");
 
-        printf("Escolha uma opcao: ");
-
-        // Verifica se a entrada é um número inteiro válido
-        if (scanf("%d", &opcao) != 1) {
-            // Se não for, exibe mensagem de erro e limpa a entrada
-            printf("Opcao invalida, insira uma opcao valido!\n");
-            while (getchar() != '\n');  // Limpa o buffer de entrada
-            continue;  // Retorna ao início do loop
-        }
+        char input[10];
+        fgets(input, sizeof(input), stdin);
+        sscanf(input, "%d", &opcao);
 
         switch (opcao) {
             case 1:
@@ -442,7 +454,7 @@ void menuCliente() {
                 break;
 
             case 2:
-                // Função para cancelar agendamentos
+                // Lógica para cancelar agendamento
                 break;
 
             case 3:
@@ -451,14 +463,14 @@ void menuCliente() {
 
             case 4:
                 printf("Sistema Finalizado\n");
-                exit(0); // Define sair como 1 para encerrar o sistema
+                sair = 1; // Define sair como 1 para encerrar o sistema
                 break;
 
             default:
                 printf("Opcao invalida!\n");
                 break;
         }
-    } while (!sair);
+    } while (opcao != 4);
 }
 
 // Função principal
@@ -470,11 +482,12 @@ int main() {
 
     while (!sair) {
         printf("Seja bem-vindo a barbearia FEIto na Navalha!\n");
-        printf("\t 0- SAIR\t 1- LOGAR\t 2- CADASTRAR\n");
+        printf("Selecione uma opcao:\n ");
+        printf("0- SAIR\t1- LOGAR\t2- CADASTRAR\n ");
 
-        printf("Selecione uma opcao: ");
-        scanf("%d", &opcao);
-        getchar();
+        char input[10];
+        fgets(input, sizeof(input), stdin);
+        sscanf(input, "%d", &opcao);
 
         if (opcao == 0) {
             printf("Saindo do sistema.\n");
@@ -482,10 +495,11 @@ int main() {
             break;
         } else if (opcao == 1) {
             // Login
+            printf("Selecione uma opcao:\n");
             printf("1- LOGAR COMO BARBEIRO\t2- LOGAR COMO CLIENTE\n");
-            printf("Selecione uma opcao: ");
-            scanf("%d", &opcao);
-            getchar();
+
+            fgets(input, sizeof(input), stdin);
+            sscanf(input, "%d", &opcao);
 
             if (opcao == 1) {
                 while (1) {
@@ -554,9 +568,11 @@ int main() {
             }
         } else if (opcao == 2) {
             // Cadastrar
-            printf("1- CADASTRAR BARBEIRO\t2- CADASTRAR CLIENTE\n");
             printf("Selecione uma opcao:\n");
-            scanf("%d", &opcao);
+            printf("1- CADASTRAR BARBEIRO\t2- CADASTRAR CLIENTE\n");
+
+            fgets(input, sizeof(input), stdin);
+            sscanf(input, "%d", &opcao);
 
             if (opcao == 1) {
                 while (1) {
