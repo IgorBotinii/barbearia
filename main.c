@@ -424,16 +424,6 @@ void menuBarbeiro() {
     } while (!sair);
 }
 
-int validarNumeroCliente(char *entrada) {
-    // Verifica se a entrada contém apenas dígitos
-    for (int i = 0; i < strlen(entrada); i++) {
-        if (!isdigit(entrada[i])) {
-            return 0;  // Retorna 0 se algum caractere não for numérico
-        }
-    }
-    return 1;  // Retorna 1 se a entrada for válida (apenas números)
-}
-
 // Menu do cliente
 void menuCliente() {
     int opcao;
