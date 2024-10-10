@@ -8,6 +8,7 @@ int sair = 0;
 char cpf_logado[20];
 char login_logado[50];
 
+// Função para listar barbeiros disponiveis
 void listarBarbeiros() {
     FILE *arquivo = fopen("barbeiros.txt", "r");
     if (arquivo == NULL) {
@@ -16,7 +17,7 @@ void listarBarbeiros() {
     }
 
     char linha[100];
-    printf("Barbeiros Disponiveis:\n");
+    printf("Barbeiros disponiveis:\n");
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
         char loginArquivo[50], nomeBarbeiro[50];
         sscanf(linha, "LOGIN: %s\tSENHA: %*s\tNOME BARBEIRO: %s", loginArquivo, nomeBarbeiro);
@@ -27,6 +28,7 @@ void listarBarbeiros() {
     fclose(arquivo);
 }
 
+// Função para verificar se o barbeiro existe
 int verificarBarbeiro(const char *nomeBarbeiro) {
     FILE *arquivo = fopen("barbeiros.txt", "r");
     if (arquivo == NULL) {
@@ -47,6 +49,7 @@ int verificarBarbeiro(const char *nomeBarbeiro) {
     return 0;
 }
 
+// Função para verificar os horario disponiveis
 void horariosdisponiveis(char horarios[][10], int *numHorarios) {
     strcpy(horarios[0], "15:00");
     strcpy(horarios[1], "16:00");
@@ -64,7 +67,7 @@ void horariosdisponiveis(char horarios[][10], int *numHorarios) {
         int numHorarios = 0;
         horariosdisponiveis(horarios, &numHorarios);
 
-        printf("horarios disponiveis:\n");
+        printf("Horarios disponiveis:\n");
         for (int i = 0; i < numHorarios; i++) {
             printf("%d. %s\n", i + 1, horarios[i]);
         }
@@ -92,7 +95,7 @@ void horariosdisponiveis(char horarios[][10], int *numHorarios) {
         getchar(); // Limpar o buffer do stdin
 
         if (indiceHorario < 1 || indiceHorario > numHorarios) {
-            printf("horario invalido.\n");
+            printf("Horario invalido.\n");
             return;
         }
     FILE *agendamentoArquivo = fopen("agendamentos.txt", "a+");
@@ -125,7 +128,7 @@ void horariosdisponiveis(char horarios[][10], int *numHorarios) {
     }
 
     // Aqui você pode escrever no arquivo porque ele está aberto
-    fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\thorario: %s\n", cpf, nomeBarbeiro, horarioSelecionado);
+    fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\tHORARIO: %s\n", cpf, nomeBarbeiro, horarioSelecionado);
     fclose(agendamentoArquivo);
 
     printf("O seu agendamento com o barbeiro %s para o horario %s foi realizado com sucesso!\n", nomeBarbeiro, horarioSelecionado);
@@ -134,11 +137,11 @@ void horariosdisponiveis(char horarios[][10], int *numHorarios) {
 // Função para consultar agendamentos
 void consultarAgendamentos() {
     char nome_barbeiro[50];
-    char linha[256];
+    char cpf[20], nomeBarbeiro[50], horario[10]; // Declarando variáveis para os campos do agendamento
     int agendamentos_encontrados = 0;
     int i;
 
-    // Solicita o login do barbeiro
+    // Solicita o nome do barbeiro
     printf("Digite o nome do barbeiro: ");
     scanf("%s", nome_barbeiro);
 
@@ -158,15 +161,10 @@ void consultarAgendamentos() {
         return;
     }
 
-    // Lê linha por linha do arquivo
-    while (fgets(linha, sizeof(linha), arquivo)) {
-        // Verifica se o login do barbeiro está na linha
-        if (strstr(linha, nome_barbeiro) != NULL) {
-            // Se encontrar o primeiro agendamento, exibe a mensagem "Seus agendamentos:" uma vez
-            if (agendamentos_encontrados == 0) {
-                printf("Seus agendamentos:\n");
-            }
-            printf("%s", linha);  // Exibe a linha que contém o login
+    // Lê o arquivo linha por linha e verifica os agendamentos
+    while (fscanf(arquivo, "CPF: %s BARBEIRO: %s HORARIO: %s\n", cpf, nomeBarbeiro, horario) != EOF) {
+        if (strcmp(nome_barbeiro, nomeBarbeiro) == 0) {
+            printf("CPF: %s | HORARIO: %s\n", cpf, horario);
             agendamentos_encontrados = 1;
         }
     }
