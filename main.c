@@ -8,6 +8,7 @@ int sair = 0;
 char cpf_logado[20];
 char login_logado[50];
 
+// Função para listar barbeiros disponiveis
 void listarBarbeiros() {
     FILE *arquivo = fopen("barbeiros.txt", "r");
     if (arquivo == NULL) {
@@ -16,7 +17,7 @@ void listarBarbeiros() {
     }
 
     char linha[100];
-    printf("Barbeiros Disponiveis:\n");
+    printf("Barbeiros disponiveis:\n");
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
         char loginArquivo[50], nomeBarbeiro[50];
         sscanf(linha, "LOGIN: %s\tSENHA: %*s\tNOME BARBEIRO: %s", loginArquivo, nomeBarbeiro);
@@ -27,6 +28,7 @@ void listarBarbeiros() {
     fclose(arquivo);
 }
 
+// Função para verificar se o barbeiro existe
 int verificarBarbeiro(const char *nomeBarbeiro) {
     FILE *arquivo = fopen("barbeiros.txt", "r");
     if (arquivo == NULL) {
@@ -47,6 +49,7 @@ int verificarBarbeiro(const char *nomeBarbeiro) {
     return 0;
 }
 
+// Função para verificar os horario disponiveis
 void horariosdisponiveis(char horarios[][10], int *numHorarios) {
     strcpy(horarios[0], "15:00");
     strcpy(horarios[1], "16:00");
@@ -64,7 +67,7 @@ void horariosdisponiveis(char horarios[][10], int *numHorarios) {
         int numHorarios = 0;
         horariosdisponiveis(horarios, &numHorarios);
 
-        printf("horarios disponiveis:\n");
+        printf("Horarios disponiveis:\n");
         for (int i = 0; i < numHorarios; i++) {
             printf("%d. %s\n", i + 1, horarios[i]);
         }
@@ -92,7 +95,7 @@ void horariosdisponiveis(char horarios[][10], int *numHorarios) {
         getchar(); // Limpar o buffer do stdin
 
         if (indiceHorario < 1 || indiceHorario > numHorarios) {
-            printf("horario invalido.\n");
+            printf("Horario invalido.\n");
             return;
         }
     FILE *agendamentoArquivo = fopen("agendamentos.txt", "a+");
@@ -125,14 +128,55 @@ void horariosdisponiveis(char horarios[][10], int *numHorarios) {
     }
 
     // Aqui você pode escrever no arquivo porque ele está aberto
-    fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\thorario: %s\n", cpf, nomeBarbeiro, horarioSelecionado);
+    fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\tHORARIO: %s\n", cpf, nomeBarbeiro, horarioSelecionado);
     fclose(agendamentoArquivo);
 
     printf("O seu agendamento com o barbeiro %s para o horario %s foi realizado com sucesso!\n", nomeBarbeiro, horarioSelecionado);
 }
 
+// Função para consultar agendamentos
+void consultarAgendamentos() {
+    char nome_barbeiro[50];
+    char cpf[20], nomeBarbeiro[50], horario[10]; // Declarando variáveis para os campos do agendamento
+    int agendamentos_encontrados = 0;
+    int i;
 
+    // Solicita o nome do barbeiro
+    printf("Digite o nome do barbeiro: ");
+    scanf("%s", nome_barbeiro);
 
+    // Verifica se o nome contém apenas letras
+    for (i = 0; nome_barbeiro[i] != '\0'; i++) {
+        if (!isalpha(nome_barbeiro[i])) {
+            printf("Nome do barbeiro invalido. Digite apenas letras.\n");
+            return; 
+        }
+    }
+
+    // Abre o arquivo agendamentos.txt em modo leitura
+    FILE *arquivo = fopen("agendamentos.txt", "r");
+
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo de agendamentos.\n");
+        return;
+    }
+
+    // Lê o arquivo linha por linha e verifica os agendamentos
+    while (fscanf(arquivo, "CPF: %s BARBEIRO: %s HORARIO: %s\n", cpf, nomeBarbeiro, horario) != EOF) {
+        if (strcmp(nome_barbeiro, nomeBarbeiro) == 0) {
+            printf("CPF: %s | HORARIO: %s\n", cpf, horario);
+            agendamentos_encontrados = 1;
+        }
+    }
+
+    // Verifica se nenhum agendamento foi encontrado
+    if (!agendamentos_encontrados) {
+        printf("Nenhum agendamento encontrado para o barbeiro '%s'.\n", nome_barbeiro);
+    }
+
+    // Fecha o arquivo
+    fclose(arquivo);
+}
 
 // Função para verificar se o CPF contém apenas numeross (desconsiderando pontuação)
 int VarVerificarCPFnumero(const char *cpf) {
@@ -267,9 +311,74 @@ void CadastrarBarbeiro(const char *login, const char *senha, const char *nomeBar
     fclose(arquivo);
 }
 
+// Função para consultar saldo
+void consultarSaldo() {
+    char login_logado[50];
+    char senha_logada[50];
+    char login_arquivo[50], senha_arquivo[50];
+    char nome_barbeiro[50];
+    float saldo;
+    int i, login_encontrado = 0;
+
+    FILE *arquivo = fopen("barbeiros.txt", "r");
+
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo de barbeiros!\n");
+        return;
+    }
+
+    // Entrada do login
+    printf("Digite o seu login de barbeiro: ");
+    scanf("%s", login_logado);
+
+    // Verifica se o login contém apenas letras
+    for (i = 0; login_logado[i] != '\0'; i++) {
+        if (!isalpha(login_logado[i])) {
+            printf("Login de barbeiro inválido. Digite apenas letras.\n");
+            fclose(arquivo);
+            return; 
+        }
+    }
+
+    // Entrada da senha
+    printf("Digite a sua senha: ");
+    scanf("%s", senha_logada);
+
+    // Leitura do arquivo e busca pelo login e senha
+    while (fscanf(arquivo, "LOGIN: %s SENHA: %s NOME BARBEIRO: %s SALDO ATUAL: %f\n", 
+                  login_arquivo, senha_arquivo, nome_barbeiro, &saldo) != EOF) {
+        if (strcmp(login_logado, login_arquivo) == 0 && strcmp(senha_logada, senha_arquivo) == 0) {
+            printf("Login e senha corretos!\n");
+            printf("Nome do barbeiro: %s\n", nome_barbeiro);
+            printf("Seu saldo atual é: R$%.2f\n", saldo);
+            login_encontrado = 1;
+            break;
+        }
+    }
+
+    if (!login_encontrado) {
+        printf("Login ou senha incorretos!\n");
+    }
+
+    fclose(arquivo);
+}
+
+// Função pra usar no menu
+int validarNumero(char *entrada) {
+    for (int i = 0; i < strlen(entrada); i++) {
+        if (!isdigit(entrada[i])) {
+            return 0; // Se encontrar qualquer caractere não numérico, retorna 0
+        }
+    }
+    return 1; // Se todos os caracteres forem números, retorna 1
+}
+
 // Menu do barbeiro
 void menuBarbeiro() {
     int opcao;
+    int sair = 0;
+    char entrada[10]; // Armazena a entrada do usuário como string
+
     do {
         printf("\nMenu Principal do barbeiro:\n");
         printf("1. Consultar agendamentos\n");
@@ -277,33 +386,40 @@ void menuBarbeiro() {
         printf("3. Consultar saldo\n");
         printf("4. Sair\n");
 
-        char input[10];
-        fgets(input, sizeof(input), stdin);
-        sscanf(input, "%d", &opcao);
+        printf("Escolha uma opcao: ");
+        scanf("%s", entrada); // Lê a entrada como string
+
+        // Verifica se a entrada contém apenas números
+        if (validarNumero(entrada)) {
+            opcao = atoi(entrada); // Converte a string para número inteiro
+        } else {
+            printf("Opcao invalida, insira uma opcao valida!\n");
+            continue;  // Retorna ao início do loop se a entrada não for válida
+        }
 
         switch (opcao) {
             case 1:
-                // Lógica para consultar agendamentos
+                consultarAgendamentos(); // Função para consultar agendamentos
                 break;
 
             case 2:
-                // Lógica para cancelar agendamentos
+                // Função
                 break;
 
             case 3:
-                // Lógica para consultar saldo
+                consultarSaldo(); // Função para consultar saldo
                 break;
 
             case 4:
                 printf("Sistema Finalizado\n");
-                sair = 1; // Define sair como 1 para encerrar o sistema
+                exit(0); // Encerra o programa
                 break;
 
             default:
                 printf("Opcao invalida!\n");
                 break;
         }
-    } while (opcao != 4);
+    } while (!sair);
 }
 
 // Menu do cliente
