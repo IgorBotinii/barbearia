@@ -57,23 +57,20 @@ void cancelar_agendamento(const char *cpf) {
     }
 
     // Remove o agendamento selecionado
-    FILE *arquivo_temp = fopen("temp_agendamentos.txt", "w");
-    if (arquivo_temp == NULL) {
-        printf("Erro ao criar arquivo temporário.\n");
+    FILE *arquivo_saida = fopen("agendamentos.txt", "w");
+    if (arquivo_saida == NULL) {
+        printf("Erro ao abrir o arquivo para escrita.\n");
         return;
     }
 
     // Reescreve todos os agendamentos, exceto o que foi cancelado
     for (int i = 0; i < total_agendamentos; i++) {
         if (i != opcao_cancelar - 1) {
-            fputs(agendamentos[i], arquivo_temp);
+            fputs(agendamentos[i], arquivo_saida);
         }
     }
 
-    fclose(arquivo_temp);
-    remove("agendamentos.txt"); // Remove o arquivo original
-    rename("temp_agendamentos.txt", "agendamentos.txt"); // Renomeia o arquivo temporário
-
+    fclose(arquivo_saida);
     printf("Agendamento cancelado com sucesso!\n");
 }
 // Função para listar barbeiros disponiveis
