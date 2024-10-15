@@ -230,7 +230,7 @@ void agendarCorte(const char *cpf) {
 // Função para consultar agendamentos
 void consultarAgendamentos() {
     char nome_barbeiro[50];
-    char cpf[20], nomeBarbeiro[50], horario[10]; // Declarando variaveis para os campos do agendamentoo
+    char cpf[20], nomeBarbeiro[50], horario[10]; // Declarando variáveis para os campos do agendamento
     int agendamentos_encontrados = 0;
     int i;
 
