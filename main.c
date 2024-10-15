@@ -8,6 +8,209 @@ int sair = 0;
 char cpf_logado[20];
 char login_logado[50];
 
+#define MAX_AGENDAMENTOS 100
+#define TAM_LINHA 100
+
+// Função para o cliente cancelar agendamento
+void cancelar_agendamento(const char *cpf) {
+    FILE *arquivo = fopen("agendamentos.txt", "r");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo de agendamentos.\n");
+        return;
+    }
+
+    char linha[TAM_LINHA];
+    char agendamentos_com_cpf[MAX_AGENDAMENTOS][TAM_LINHA];
+    char agendamentos_sem_cpf[MAX_AGENDAMENTOS][TAM_LINHA];
+    int total_agendamentos_com_cpf = 0;
+    int total_agendamentos_sem_cpf = 0;
+
+    // Lê todos os agendamentos e separa em duas listas
+    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+        if (strstr(linha, cpf) != NULL) {
+            if (total_agendamentos_com_cpf < MAX_AGENDAMENTOS) {
+                strncpy(agendamentos_com_cpf[total_agendamentos_com_cpf], linha, TAM_LINHA - 1);
+                agendamentos_com_cpf[total_agendamentos_com_cpf][TAM_LINHA - 1] = '\0'; // Garantir que a string seja nula-terminada
+                total_agendamentos_com_cpf++;
+            }
+        } else {
+            if (total_agendamentos_sem_cpf < MAX_AGENDAMENTOS) {
+                strncpy(agendamentos_sem_cpf[total_agendamentos_sem_cpf], linha, TAM_LINHA - 1);
+                agendamentos_sem_cpf[total_agendamentos_sem_cpf][TAM_LINHA - 1] = '\0'; // Garantir que a string seja nula-terminada
+                total_agendamentos_sem_cpf++;
+            }
+        }
+    }
+    fclose(arquivo);
+
+    // Se não houver agendamentos encontrados para o CPF
+    if (total_agendamentos_com_cpf == 0) {
+        printf("Nenhum agendamento encontrado para o CPF: %s\n", cpf);
+        return;
+    }
+
+    // Exibe os agendamentos encontrados
+    printf("Agendamentos encontrados:\n");
+    for (int i = 0; i < total_agendamentos_com_cpf; i++) {
+        printf("%d. %s", i + 1, agendamentos_com_cpf[i]);
+    }
+
+    int opcao_cancelar;
+    printf("Digite o número do agendamento que deseja cancelar (ou 0 para cancelar): ");
+    scanf("%d", &opcao_cancelar);
+    getchar(); // Limpa o buffer do stdin
+
+    if (opcao_cancelar == 0) {
+        printf("Cancelamento de agendamento cancelado.\n");
+        return;
+    }
+
+    if (opcao_cancelar < 1 || opcao_cancelar > total_agendamentos_com_cpf) {
+        printf("Número inválido.\n");
+        return;
+    }
+
+    // Reescreve todos os agendamentos, substituindo o que foi cancelado
+    FILE *arquivo_saida = fopen("agendamentos.txt", "w");
+    if (arquivo_saida == NULL) {
+        printf("Erro ao abrir o arquivo para escrita.\n");
+        return;
+    }
+
+    // Reescreve agendamentos que não foram cancelados
+    for (int i = 0; i < total_agendamentos_sem_cpf; i++) {
+        fputs(agendamentos_sem_cpf[i], arquivo_saida);
+    }
+
+    // Escreve os agendamentos com CPF, substituindo o que foi cancelado
+    for (int i = 0; i < total_agendamentos_com_cpf; i++) {
+        if (i == opcao_cancelar - 1) {
+            fprintf(arquivo_saida, ""); // Mantenha informações do agendamento
+        } else {
+            fputs(agendamentos_com_cpf[i], arquivo_saida);
+        }
+    }
+
+    fclose(arquivo_saida);
+    printf("Agendamento cancelado com sucesso!\n");
+}
+
+// Função para o barbeiro cancelar agendamento
+void cancelar_agendamento_barbeiro(const char *login_logado) {
+    FILE *arquivo_barbeiros = fopen("barbeiros.txt", "r");
+    if (arquivo_barbeiros == NULL) {
+        printf("Erro ao abrir o arquivo de barbeiros.\n");
+        return;
+    }
+
+    char linha[TAM_LINHA];
+    char nome_barbeiro[TAM_LINHA];
+    int barbeiro_encontrado = 0;
+
+    // Busca o nome do barbeiro correspondente ao login
+    while (fgets(linha, sizeof(linha), arquivo_barbeiros) != NULL) {
+        char login[TAM_LINHA];
+        sscanf(linha, "LOGIN: %s", login);
+
+        if (strcmp(login, login_logado) == 0) {
+            sscanf(linha, "LOGIN: %*s SENHA: %*s NOME BARBEIRO: %s", nome_barbeiro);
+            barbeiro_encontrado = 1;
+            break;
+        }
+    }
+    fclose(arquivo_barbeiros);
+
+    // Se o barbeiro não for encontrado
+    if (!barbeiro_encontrado) {
+        printf("Barbeiro com login %s não encontrado.\n", login_logado);
+        return;
+    }
+
+    // A partir do nome do barbeiro, buscar agendamentos
+    FILE *arquivo_agendamentos = fopen("agendamentos.txt", "r");
+    if (arquivo_agendamentos == NULL) {
+        printf("Erro ao abrir o arquivo de agendamentos.\n");
+        return;
+    }
+
+    char agendamentos[MAX_AGENDAMENTOS][TAM_LINHA];
+    int total_agendamentos = 0;
+
+    // Lê todos os agendamentos e filtra os que pertencem ao barbeiro
+    while (fgets(linha, sizeof(linha), arquivo_agendamentos) != NULL) {
+        if (strstr(linha, nome_barbeiro) != NULL) {
+            if (total_agendamentos < MAX_AGENDAMENTOS) {
+                strncpy(agendamentos[total_agendamentos], linha, TAM_LINHA - 1);
+                agendamentos[total_agendamentos][TAM_LINHA - 1] = '\0'; // Garantir que a string seja nula-terminada
+                total_agendamentos++;
+            }
+        }
+    }
+    fclose(arquivo_agendamentos);
+
+    // Se não houver agendamentos encontrados para o barbeiro
+    if (total_agendamentos == 0) {
+        printf("Nenhum agendamento encontrado para o barbeiro: %s\n", nome_barbeiro);
+        return;
+    }
+
+    // Exibe os agendamentos encontrados
+    printf("Agendamentos encontrados para %s:\n", nome_barbeiro);
+    for (int i = 0; i < total_agendamentos; i++) {
+        printf("%d. %s", i + 1, agendamentos[i]);
+    }
+
+    int opcao_cancelar;
+    printf("Digite o número do agendamento que deseja cancelar (ou 0 para cancelar): ");
+    scanf("%d", &opcao_cancelar);
+    getchar(); // Limpa o buffer do stdin
+
+    if (opcao_cancelar == 0) {
+        printf("Cancelamento de agendamento cancelado.\n");
+        return;
+    }
+
+    if (opcao_cancelar < 1 || opcao_cancelar > total_agendamentos) {
+        printf("Número inválido.\n");
+        return;
+    }
+
+    // Reescreve todos os agendamentos, substituindo o que foi cancelado
+    FILE *arquivo_saida = fopen("agendamentos.tmp", "w");
+    if (arquivo_saida == NULL) {
+        printf("Erro ao abrir o arquivo temporário para escrita.\n");
+        return;
+    }
+
+    // Lê novamente o arquivo original e reescreve agendamentos que não foram cancelados
+    arquivo_agendamentos = fopen("agendamentos.txt", "r");
+    if (arquivo_agendamentos == NULL) {
+        printf("Erro ao abrir o arquivo de agendamentos para leitura.\n");
+        fclose(arquivo_saida);
+        return;
+    }
+
+    // Agendamento a ser cancelado
+    char *agendamento_cancelado = agendamentos[opcao_cancelar - 1];
+
+    // Reescreve apenas os agendamentos que não são o que foi cancelado
+    while (fgets(linha, sizeof(linha), arquivo_agendamentos) != NULL) {
+        // Se não for o agendamento que está sendo cancelado, escreve no novo arquivo
+        if (strcmp(linha, agendamento_cancelado) != 0) {
+            fputs(linha, arquivo_saida);
+        }
+    }
+
+    fclose(arquivo_agendamentos);
+    fclose(arquivo_saida);
+
+    // Substitui o arquivo original pelo arquivo temporário
+    remove("agendamentos.txt");
+    rename("agendamentos.tmp", "agendamentos.txt");
+
+    printf("Agendamento cancelado com sucesso!\n");
+}
+
 // Função para listar barbeiros disponiveis
 void listarBarbeiros() {
     FILE *arquivo = fopen("barbeiros.txt", "r");
@@ -59,79 +262,85 @@ void horariosdisponiveis(char horarios[][10], int *numHorarios) {
     strcpy(horarios[5], "20:00");
     *numHorarios = 6; // Define o numeros de Horarios disponiveis
 }
-    void agendarCorte(const char *cpf) {
-        listarBarbeiros();
 
-        // Criar uma matriz para armazenar os horarios
-        char horarios[6][10];
-        int numHorarios = 0;
-        horariosdisponiveis(horarios, &numHorarios);
+//Função para agendar um corte
+void agendarCorte(const char *cpf) {
+    listarBarbeiros();
 
-        printf("Horarios disponiveis:\n");
-        for (int i = 0; i < numHorarios; i++) {
-            printf("%d. %s\n", i + 1, horarios[i]);
-        }
+    // Criar uma matriz para armazenar os horarios
+    char horarios[6][10];
+    int numHorarios = 0;
+    horariosdisponiveis(horarios, &numHorarios);
 
-        char nomeBarbeiro[50];
-        printf("Digite o nome do barbeiro que deseja agendar (ou 0 para cancelar): ");
-        fgets(nomeBarbeiro, sizeof(nomeBarbeiro), stdin);
-        nomeBarbeiro[strcspn(nomeBarbeiro, "\n")] = '\0';
-
-        if (strcmp(nomeBarbeiro, "0") == 0) {
-            printf("Agendamento cancelado.\n");
-            return;
-        }
-
-        // Verificar se o barbeiro existe
-        if (!verificarBarbeiro(nomeBarbeiro)) {
-            printf("O barbeiro %s nao existe.\n", nomeBarbeiro);
-            return;
-        }
-
-        // Adicionar a seleção de horario
-        int indiceHorario;
-        printf("Selecione o horario (1 a 6): ");
-        scanf("%d", &indiceHorario);
-        getchar(); // Limpar o buffer do stdin
-
-        if (indiceHorario < 1 || indiceHorario > numHorarios) {
-            printf("Horario invalido.\n");
-            return;
-        }
-    FILE *agendamentoArquivo = fopen("agendamentos.txt", "a+");
-    if (agendamentoArquivo == NULL) {
-        printf("Erro ao abrir o arquivo de agendamentos! Criando o arquivo...\n");
-        agendamentoArquivo = fopen("agendamentos.txt", "w");
-        if (agendamentoArquivo == NULL) {
-            printf("Erro ao criar o arquivo de agendamentos!\n");
-            return;
-        }
+    printf("Horarios disponiveis:\n");
+    for (int i = 0; i < numHorarios; i++) {
+        printf("%d. %s\n", i + 1, horarios[i]);
     }
 
-    char linha[100];
-    int horarioOcupado = 0;
-    char horarioSelecionado[10];
-    strcpy(horarioSelecionado, horarios[indiceHorario - 1]);
+    char nomeBarbeiro[50];
+    printf("Digite o nome do barbeiro que deseja agendar (ou 0 para cancelar): ");
+    fgets(nomeBarbeiro, sizeof(nomeBarbeiro), stdin);
+    nomeBarbeiro[strcspn(nomeBarbeiro, "\n")] = '\0';
 
-    while (fgets(linha, sizeof(linha), agendamentoArquivo) != NULL) {
-        if (strstr(linha, horarioSelecionado) != NULL && strstr(linha, nomeBarbeiro) != NULL) {
-            horarioOcupado = 1;
-            break;
-        }
-    }
-
-    // Se o horario estiver ocupado, feche o arquivo e retorne
-    if (horarioOcupado) {
-        fclose(agendamentoArquivo);
-        printf("O horario das %s com o barbeiro %s ja foi preenchido\n", horarioSelecionado, nomeBarbeiro);
+    if (strcmp(nomeBarbeiro, "0") == 0) {
+        printf("Agendamento cancelado.\n");
         return;
     }
 
-    // Aqui você pode escrever no arquivo porque ele está aberto
-    fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\tHORARIO: %s\n", cpf, nomeBarbeiro, horarioSelecionado);
+    // Verificar se o barbeiro existe
+    if (!verificarBarbeiro(nomeBarbeiro)) {
+        printf("O barbeiro %s nao existe.\n", nomeBarbeiro);
+        return;
+    }
+
+    // Adicionar a seleção de horario
+    int indiceHorario;
+    printf("Selecione o horario (1 a %d): ", numHorarios);
+    scanf("%d", &indiceHorario);
+    getchar(); // Limpar o buffer do stdin
+
+    if (indiceHorario < 1 || indiceHorario > numHorarios) {
+        printf("Horario invalido.\n");
+        return;
+    }
+
+    // Abrir o arquivo para leitura
+    FILE *agendamentoArquivo = fopen("agendamentos.txt", "r");
+    if (agendamentoArquivo == NULL) {
+        printf("Arquivo de agendamentos não encontrado. Um novo será criado.\n");
+    } else {
+        char linha[100];
+        int horarioOcupado = 0;
+        char horarioSelecionado[10];
+        strcpy(horarioSelecionado, horarios[indiceHorario - 1]);
+
+        // Lê todas as linhas para verificar se o horário está ocupado
+        while (fgets(linha, sizeof(linha), agendamentoArquivo) != NULL) {
+            if (strstr(linha, horarioSelecionado) != NULL) {
+                horarioOcupado = 1;
+                break;
+            }
+        }
+        fclose(agendamentoArquivo); // Fecha o arquivo após a verificação
+
+        // Se o horario estiver ocupado, retorne
+        if (horarioOcupado) {
+            printf("O horario das %s ja foi preenchido por outro cliente.\n", horarioSelecionado);
+            return;
+        }
+    }
+
+    // Agora, vamos escrever o novo agendamento
+    agendamentoArquivo = fopen("agendamentos.txt", "a"); // Abre para adicionar
+    if (agendamentoArquivo == NULL) {
+        printf("Erro ao abrir o arquivo de agendamentos para escrita!\n");
+        return;
+    }
+
+    fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\tHORARIO: %s\n", cpf, nomeBarbeiro, horarios[indiceHorario - 1]);
     fclose(agendamentoArquivo);
 
-    printf("O seu agendamento com o barbeiro %s para o horario %s foi realizado com sucesso!\n", nomeBarbeiro, horarioSelecionado);
+    printf("O seu agendamento com o barbeiro %s para o horario %s foi realizado com sucesso!\n", nomeBarbeiro, horarios[indiceHorario - 1]);
 }
 
 // Função para consultar agendamentos
@@ -403,7 +612,7 @@ void menuBarbeiro() {
                 break;
 
             case 2:
-                // Função
+                cancelar_agendamento_barbeiro(login_logado); // Função para cancelar agendamentos
                 break;
 
             case 3:
@@ -442,7 +651,7 @@ void menuCliente() {
                 break;
 
             case 2:
-                // Lógica para cancelar agendamento
+                cancelar_agendamento(cpf_logado);
                 break;
 
             case 3:
