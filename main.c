@@ -8,7 +8,6 @@ int sair = 0;
 char cpf_logado[20];
 char login_logado[50];
 
-
 void cancelar_agendamento(const char *cpf) {
     FILE *arquivo = fopen("agendamentos.txt", "r");
     if (arquivo == NULL) {
@@ -23,22 +22,24 @@ void cancelar_agendamento(const char *cpf) {
     // Lê todos os agendamentos e armazena em uma lista
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
         if (strstr(linha, cpf) != NULL) {
+            // Se o agendamento pertence ao CPF do cliente que está cancelando, armazena
             strcpy(agendamentos[total_agendamentos], linha);
             total_agendamentos++;
         }
     }
     fclose(arquivo);
 
-    // Se não houver agendamentos encontrados
+    // Se não houver agendamentos encontrados para o CPF
     if (total_agendamentos == 0) {
         printf("Nenhum agendamento encontrado para o CPF: %s\n", cpf);
         return;
     }
 
-    // Exibe os agendamentos encontrados
-    printf("Agendamentos encontrados:\n");
+    // Exibe os agendamentos encontrados com a linha correspondente
+    printf("Agendamentos encontrados para cancelamento:\n");
     for (int i = 0; i < total_agendamentos; i++) {
-        printf("%d. %s", i + 1, agendamentos[i]);
+        // Usamos `\t` para manter a formatação com tabulação
+        printf("Linha %d: %s", i + 1, agendamentos[i]);
     }
 
     int opcao_cancelar;
@@ -47,7 +48,7 @@ void cancelar_agendamento(const char *cpf) {
     getchar(); // Limpa o buffer do stdin
 
     if (opcao_cancelar == 0) {
-        printf("Cancelamento de agendamento cancelado.\n");
+        printf("Operação Cancelada.\n");
         return;
     }
 
@@ -57,7 +58,7 @@ void cancelar_agendamento(const char *cpf) {
     }
 
     // Remove o agendamento selecionado
-    FILE *arquivo_saida = fopen("agendamentos.txt", "w");
+    FILE *arquivo_saida = fopen("agendamentos.tmp", "w");
     if (arquivo_saida == NULL) {
         printf("Erro ao abrir o arquivo para escrita.\n");
         return;
@@ -71,8 +72,14 @@ void cancelar_agendamento(const char *cpf) {
     }
 
     fclose(arquivo_saida);
+
+    // Agora substitui o arquivo original pelo arquivo temporário
+    remove("agendamentos.txt");
+    rename("agendamentos.tmp", "agendamentos.txt");
+
     printf("Agendamento cancelado com sucesso!\n");
 }
+
 // Função para listar barbeiros disponiveis
 void listarBarbeiros() {
     FILE *arquivo = fopen("barbeiros.txt", "r");
