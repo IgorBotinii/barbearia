@@ -1,7 +1,7 @@
 # 💈 FEIto na Navalha
 
 **FEIto na Navalha** é um sistema de agendamento para barbearias, desenvolvido na linguagem C, ideal para rodar no terminal de forma rápida e eficiente. O foco do sistema é facilitar a organização de horários para cortes de cabelo ou barba, oferecendo uma solução simples para pequenos estabelecimentos.
-## Índice
+## 📇 Índice
 
 - [Descrição do Projeto](#descrição-do-projeto)
 - [Funcionalidades](#funcionalidades)
@@ -15,7 +15,7 @@
 - [Contribuições](#contribuições)
 - [Licença](#licença)
 
-## Funcionalidades
+## ✍️ Funcionalidades
 
 ### Para Clientes
 - **Cadastro**: Clientes podem criar uma conta utilizando CPF e senha.
@@ -43,3 +43,8 @@ O sistema utiliza os seguintes arquivos para armazenamento de dados:
 - **clientes.txt**: Armazena informações sobre os clientes, incluindo CPF, senha e nome.
 - **barbeiros.txt**: Armazena informações sobre os barbeiros, incluindo login, senha e nome.
 - **agendamentos.txt**: Armazena informações sobre os agendamentos realizados, incluindo data, hora, cliente e barbeiro.
+
+## Desenvolvedores
+
+- **Nome**: Igor Botini da Silva  - **RA:**  22.124.023-7
+- **Nome**: Henrique Gaiardoni Sant'anna  - **RA:**  22.124.023-7
