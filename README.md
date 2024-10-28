@@ -7,12 +7,12 @@
 - [Funcionalidades](#funcionalidades)
   - [Para Clientes](#para-clientes)
   - [Para Barbeiros](#para-barbeiros)
-- [Como Usar](#como-usar-o-sistema)
+- [Como Usar](#acao)
   - [Area de Clientes](#cliente)
-  - [Area de Barbeiros](#para-barbeiros)
+  - [Area de Barbeiros](#barbeiro)
 - [Desenvolvedores](#desenvolvedores)
 
-## ✍️ Funcionalidades
+### ✍️ Funcionalidades
 
 ### Para Clientes
 - **Cadastro**: Clientes podem criar uma conta utilizando CPF e senha.
@@ -64,10 +64,45 @@ Agendamentos encontrados:
 3. CPF: 503 BARBEIRO: Mathes    HORARIO: 18:00
 Digite o número do agendamento que deseja cancelar (ou 0 para cancelar): 2
 Agendamento cancelado com sucesso!
+
 ```
+
+- **Opção 3:** Esta opção server para poder verificar seu historico de agendamentos e cancelamentos
+
+```
+Historico de agendamentos para o CPF: 503
+CPF: 503        BARBEIRO: Ricardo      HORARIO: 15:00
+CPF: 503        AGENDAMENTO CANCELADO: CPF: 503 BARBEIRO: Ricardo      HORARIO: 15:00
+```
+
+
 
 - **Opção 4:** Nessa opção o usuario cancela e fecha o sistema:
 
+```
+4
+Sistema Finalizado
+```
+-------
+### Barbeiro:
+
+- **Opção 1:** Esta opção você verifica quais agendamentos você possui:
+
+```
+Escolha uma opcao: 1
+Digite o nome do barbeiro: Ricardo
+CPF: 503 | HORARIO: 15:00
+```
+- **Opção 2** Esta opção você cancela um agendamento caso não consiga comparecer 
+
+```
+Escolha uma opcao: 2
+Agendamentos encontrados para Ricardo:
+1. CPF: 503     BARBEIRO: Ricardo       HORARIO: 15:00
+Digite o Numero do agendamento que deseja cancelar (ou 0 para cancelar): 1
+Agendamento cancelado com sucesso!
+```
+- **Opção 4** O usuario finaliza e sai do sistema 
 ```
 4
 Sistema Finalizado
@@ -77,4 +112,4 @@ Sistema Finalizado
 ## 👨🏻‍💻 Responsaveis
   ### Desenvolvedores
 - **Nome:** Igor Botini **RA:** 22.124.023-7
-- **Nome:** Henrique Gaiadorni Sant’Anna **RA:** 22.124.023-7
+- **Nome:** Henrique Gaiardoni Sant’Anna **RA:** 22.124.009-6
