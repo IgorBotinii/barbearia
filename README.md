@@ -7,8 +7,8 @@
 - [Funcionalidades](#funcionalidades)
   - [Para Clientes](#para-clientes)
   - [Para Barbeiros](#para-barbeiros)
-- [Como Usar](#)
-  - [Area de Clientes](#para-clientes)
+- [Como Usar](#como-usar-o-sistema)
+  - [Area de Clientes](#cliente)
   - [Area de Barbeiros](#para-barbeiros)
 - [Desenvolvedores](#desenvolvedores)
 
@@ -28,7 +28,7 @@
 - **Atualização de Informações**: Barbeiros podem atualizar suas informações cadastrais.
 
 
-## 💻​ Como Usar o Sistema
+## 💻​ Ação
 ### Cliente:
 Ao iniciar como cliente, o sistema lhe mostrara as seguintes opções:
 
@@ -66,7 +66,12 @@ Digite o número do agendamento que deseja cancelar (ou 0 para cancelar): 2
 Agendamento cancelado com sucesso!
 ```
 
+- **Opção 4:** Nessa opção o usuario cancela e fecha o sistema:
 
+```
+4
+Sistema Finalizado
+```
 
 
 ## 👨🏻‍💻 Responsaveis
