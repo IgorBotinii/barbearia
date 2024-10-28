@@ -13,18 +13,18 @@ char login_logado[50];
 
 
 
-// Função para consultar o histórico de agendamentos baseado no CPF
+// Função para consultar o Historico de agendamentos baseado no CPF
 void consultarHistoricos(const char *cpf) {
     FILE *historicoArquivo = fopen("historico.txt", "r");
     if (historicoArquivo == NULL) {
-        printf("Erro ao abrir o arquivo de histórico.\n");
+        printf("Erro ao abrir o arquivo de Historico.\n");
         return;
     }
 
     char linha[TAM_LINHA];
     int encontrouHistorico = 0;
 
-    printf("Histórico de agendamentos para o CPF: %s\n", cpf);
+    printf("Historico de agendamentos para o CPF: %s\n", cpf);
     while (fgets(linha, sizeof(linha), historicoArquivo) != NULL) {
         if (strstr(linha, cpf) != NULL) {
             printf("%s", linha); // Exibe a linha correspondente ao CPF
@@ -35,7 +35,7 @@ void consultarHistoricos(const char *cpf) {
     fclose(historicoArquivo);
 
     if (!encontrouHistorico) {
-        printf("Nenhum histórico encontrado para o CPF: %s\n", cpf);
+        printf("Nenhum Historico encontrado para o CPF: %s\n", cpf);
     }
 }
 
@@ -85,7 +85,7 @@ void cancelar_agendamento(const char *cpf) {
     }
 
     int opcao_cancelar;
-    printf("Digite o número do agendamento que deseja cancelar (ou 0 para cancelar): ");
+    printf("Digite o Numero do agendamento que deseja cancelar (ou 0 para cancelar): ");
     scanf("%d", &opcao_cancelar);
     getchar(); // Limpa o buffer do stdin
 
@@ -95,7 +95,7 @@ void cancelar_agendamento(const char *cpf) {
     }
 
     if (opcao_cancelar < 1 || opcao_cancelar > total_agendamentos_com_cpf) {
-        printf("Número inválido.\n");
+        printf("Numero inválido.\n");
         return;
     }
 
@@ -139,7 +139,7 @@ void cancelar_agendamento(const char *cpf) {
         }
     }
 
-    // Registra o cancelamento no histórico
+    // Registra o cancelamento no Historico
     fprintf(historicoArquivo, "CPF: %s\tAGENDAMENTO CANCELADO: %s\n", cpf, agendamento_cancelado); 
     fclose(historicoArquivo);
 
@@ -214,7 +214,7 @@ void cancelar_agendamento_barbeiro(const char *login_logado) {
     }
 
     int opcao_cancelar;
-    printf("Digite o número do agendamento que deseja cancelar (ou 0 para cancelar): ");
+    printf("Digite o Numero do agendamento que deseja cancelar (ou 0 para cancelar): ");
     scanf("%d", &opcao_cancelar);
     getchar(); // Limpa o buffer do stdin
 
@@ -224,7 +224,7 @@ void cancelar_agendamento_barbeiro(const char *login_logado) {
     }
 
     if (opcao_cancelar < 1 || opcao_cancelar > total_agendamentos) {
-        printf("Número inválido.\n");
+        printf("Numero inválido.\n");
         return;
     }
 
@@ -647,7 +647,7 @@ int validarNumero(char *entrada) {
             return 0; // Se encontrar qualquer caractere não numérico, retorna 0
         }
     }
-    return 1; // Se todos os caracteres forem números, retorna 1
+    return 1; // Se todos os caracteres forem Numeros, retorna 1
 }
 
 // Menu do barbeiro
@@ -666,9 +666,9 @@ void menuBarbeiro() {
         printf("Escolha uma opcao: ");
         scanf("%s", entrada); // Lê a entrada como string
 
-        // Verifica se a entrada contém apenas números
+        // Verifica se a entrada contém apenas Numeros
         if (validarNumero(entrada)) {
-            opcao = atoi(entrada); // Converte a string para número inteiro
+            opcao = atoi(entrada); // Converte a string para Numero inteiro
         } else {
             printf("Opcao invalida, insira uma opcao valida!\n");
             continue;  // Retorna ao início do loop se a entrada não for válida
