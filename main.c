@@ -11,6 +11,33 @@ char login_logado[50];
 #define MAX_AGENDAMENTOS 100
 #define TAM_LINHA 100
 
+// Função para consultar o histórico de agendamentos baseado no CPF
+void consultarHistoricos(const char *cpf) {
+    FILE *historicoArquivo = fopen("historico.txt", "r");
+    if (historicoArquivo == NULL) {
+        printf("Erro ao abrir o arquivo de histórico.\n");
+        return;
+    }
+
+    char linha[TAM_LINHA];
+    int encontrouHistorico = 0;
+
+    printf("Histórico de agendamentos para o CPF: %s\n", cpf);
+    while (fgets(linha, sizeof(linha), historicoArquivo) != NULL) {
+        if (strstr(linha, cpf) != NULL) {
+            printf("%s", linha); // Exibe a linha correspondente ao CPF
+            encontrouHistorico = 1;
+        }
+    }
+
+    fclose(historicoArquivo);
+
+    if (!encontrouHistorico) {
+        printf("Nenhum histórico encontrado para o CPF: %s\n", cpf);
+    }
+}
+
+
 // Função para o cliente cancelar agendamento
 void cancelar_agendamento(const char *cpf) {
     FILE *arquivo = fopen("agendamentos.txt", "r");
@@ -70,6 +97,11 @@ void cancelar_agendamento(const char *cpf) {
         return;
     }
 
+    // O agendamento que será cancelado
+    char agendamento_cancelado[TAM_LINHA];
+    strncpy(agendamento_cancelado, agendamentos_com_cpf[opcao_cancelar - 1], TAM_LINHA - 1);
+    agendamento_cancelado[TAM_LINHA - 1] = '\0'; // Garantir que a string seja nula-terminada
+
     // Reescreve todos os agendamentos, substituindo o que foi cancelado
     FILE *arquivo_saida = fopen("agendamentos.txt", "w");
     if (arquivo_saida == NULL) {
@@ -85,15 +117,34 @@ void cancelar_agendamento(const char *cpf) {
     // Escreve os agendamentos com CPF, substituindo o que foi cancelado
     for (int i = 0; i < total_agendamentos_com_cpf; i++) {
         if (i == opcao_cancelar - 1) {
-            fprintf(arquivo_saida, ""); // Mantenha informações do agendamento
+            // O agendamento que foi cancelado não é escrito no novo arquivo
+            continue;
         } else {
             fputs(agendamentos_com_cpf[i], arquivo_saida);
         }
     }
 
     fclose(arquivo_saida);
+
+    // Registrar no historico.txt
+    FILE *historicoArquivo = fopen("historico.txt", "a"); // Abre para adicionar
+    if (historicoArquivo == NULL) {
+        printf("Erro ao abrir o arquivo de historico para escrita! Um novo será criado.\n");
+        historicoArquivo = fopen("historico.txt", "w"); // Tenta criar um novo arquivo
+        if (historicoArquivo == NULL) {
+            printf("Não foi possível criar o arquivo de historico!\n");
+            return;
+        }
+    }
+
+    // Registra o cancelamento no histórico
+    fprintf(historicoArquivo, "CPF: %s\tAGENDAMENTO CANCELADO: %s\n", cpf, agendamento_cancelado); 
+    fclose(historicoArquivo);
+
+
     printf("Agendamento cancelado com sucesso!\n");
 }
+
 
 // Função para listar barbeiros disponiveis
 void listarBarbeiros() {
@@ -223,6 +274,22 @@ void agendarCorte(const char *cpf) {
 
     fprintf(agendamentoArquivo, "CPF: %s\tBARBEIRO: %s\tHORARIO: %s\n", cpf, nomeBarbeiro, horarios[indiceHorario - 1]);
     fclose(agendamentoArquivo);
+
+
+    // Registrar no historico.txt
+    FILE *historicoArquivo = fopen("historico.txt", "a"); // Abre para adicionar
+    if (historicoArquivo == NULL) {
+        printf("Erro ao abrir o arquivo de historico para escrita! Um novo será criado.\n");
+        historicoArquivo = fopen("historico.txt", "w"); // Tenta criar um novo arquivo
+        if (historicoArquivo == NULL) {
+            printf("Não foi possível criar o arquivo de historico!\n");
+            return;
+        }
+    }
+
+    fprintf(historicoArquivo, "CPF: %s\tBARBEIRO: %s\tHORARIO: %s\n - AGENDOU\n", cpf, nomeBarbeiro, horarios[indiceHorario - 1]);
+    fclose(historicoArquivo);
+
 
     printf("O seu agendamento com o barbeiro %s para o horario %s foi realizado com sucesso!\n", nomeBarbeiro, horarios[indiceHorario - 1]);
 }
@@ -539,7 +606,7 @@ void menuCliente() {
                 break;
 
             case 3:
-                // Lógica para consultar historico de agendamentos
+                consultarHistoricos(cpf_logado);
                 break;
 
             case 4:
